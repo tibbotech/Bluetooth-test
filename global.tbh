@@ -1,0 +1,27 @@
+'#define DHCP_DEBUG_PRINT 1 
+'#define STG_DEBUG_PRINT 1 
+'#define GA1000 0
+'Wi-Fi setup
+
+#define WLN_WPA 0
+#define WLN_AVAILABLE 2
+#define WLN_DEBUG_PRINT 1
+
+#define WLN_RST PL_IO_NUM_51
+#define WLN_CS PL_IO_NUM_49
+#define WLN_DI PL_IO_NUM_52
+#define WLN_DO PL_IO_NUM_50
+#define WLN_CLK PL_IO_NUM_53
+
+'Libraries
+
+include "sock\trunk\sock.tbh"
+include "wln\trunk\wln.tbh"
+ 
+
+'Functions
+
+declare sub init()
+
+ 
+

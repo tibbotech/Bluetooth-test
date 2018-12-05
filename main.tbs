@@ -1,0 +1,89 @@
+include "global.tbh"
+
+'====================================================================
+
+sub on_sys_init()
+
+	wln.ip="192.168.1.115"
+	
+	dim btmac as string	
+	'intialize the GPIO and boots wireless module 
+	wln_start("Wifiname",WLN_SECURITY_MODE_WPA2,"password",PL_WLN_DOMAIN_FCC,YES,PL_WLN_ASCAN_INFRASTRUCTURE)
+    sys.debugprint("BT MAC: " + bt.mac +"\r\n")
+	sys.debugprint("WLN VER:" + wln.monversion + "\r\n")
+ 
+	if wln.monversion < "00.00.12" then
+		sys.debugprint("Your module needs to run 00.00.12 or greater")
+		sys.halt()
+	end if
+	
+	'Here you can use you the Microchip app for testing on IOS, You also have the option of testin on Android after installing the APK
+	bt.emulation = PL_WLN_BT_EMULATION_MODE_MICROCHIP
+	'Bultetooth name is cached by phone, if the value is changed you may need to restart your phone to see update
+	bt.name = "My Test"
+	
+	bt.txbuffrq(1)
+	bt.rxbuffrq(1)
+	sys.buffalloc
+	bt.enable
+end sub
+
+
+
+
+sub on_bt_data_arrival()
+	sys.debugprint("Received: " + stri(bt.rxlen) + "bytes\r\n")
+	sys.debugprint("Data: " + bt.getdata(bt.rxlen) + "\r\n")
+end sub
+
+sub on_bt_data_sent()
+	' TODO: place "on_bt_data_sent" event handler code here...
+	sys.debugprint("New Tx Length: " + stri(bt.txlen) + "bytes\r\n")
+end sub
+
+sub on_bt_event(bt_event as enum pl_bt_events)
+	select case bt_event
+	case PL_BT_EVENT_CONNECTED:
+		sys.debugprint("BT Connected\r\n")
+	
+	case PL_BT_EVENT_DISCONNECTED:
+		sys.debugprint("BT Disconnected\r\n")
+	case PL_BT_EVENT_ENABLED:
+		bt.advertise = YES
+	case PL_BT_EVENT_DISABLED:
+		sys.debugprint("BT Power Off\r\n")
+	end select
+end sub
+
+'sub on_bt_overrun()
+'	sys.debugprint("Oops we did not process data in time \r\n")
+'end sub
+
+sub on_button_pressed()
+	if bt.connected =NO then
+		if bt.enabled = YES then
+			bt.disable()
+		else
+			bt.enable()
+		end if	
+	else 
+		bt.setdata("Hello World")
+		bt.notifysent(3)
+		bt.send()
+	end if
+	
+end sub
+
+sub on_sock_data_arrival()
+	'wln_proc_data()
+end sub
+
+'--------------------------------------------------------------------
+sub on_wln_task_complete(completed_task as pl_wln_tasks)
+	wln_proc_task_complete(completed_task)
+end sub
+
+'--------------------------------------------------------------------
+sub on_wln_event(wln_event as pl_wln_events)
+	wln_proc_event(wln_event)
+end sub
